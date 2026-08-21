@@ -19,7 +19,8 @@ StreamProbe gives video, CDN, and platform engineers one consistent way to answe
 - automatic HLS master-to-media traversal across representative bitrate variants
 - basic DASH `SegmentTemplate` and `SegmentList` media URL resolution
 - variants, resolution, bandwidth, frame rate, and codec declarations
-- audio and subtitle renditions
+- audio and subtitle renditions, including default/autoselect/forced flags
+- provider-neutral AV1 and VP9 family/profile labels (raw codec values remain available)
 - sampled segment availability and response latency
 - common signed URL expiry formats, including AWS query signatures and JWT expiry
 - live/VOD detection and declared duration
@@ -57,6 +58,15 @@ Machine-readable output is available with `--json`:
 ```bash
 streamprobe inspect URL --json --samples 5 --timeout 8
 ```
+
+Use compact JSON Lines when piping a result into an automation process:
+
+```bash
+streamprobe inspect URL --jsonl | jq -c 'select(.health_score < 80)'
+```
+
+API responses expose raw `codecs` alongside `codec_labels`; HLS renditions include
+nullable `default`, `autoselect`, and `forced` fields.
 
 Private and localhost targets are blocked by default. For local development only, pass `--allow-private`.
 

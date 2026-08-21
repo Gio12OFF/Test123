@@ -21,6 +21,13 @@ def test_parses_master_playlist_variants_and_renditions():
     assert manifest.variants[1].bandwidth == 2_500_000
     assert manifest.variants[0].uri == "https://cdn.example.test/path/video/360p.m3u8"
     assert {item.kind for item in manifest.renditions} == {"audio", "subtitles"}
+    audio = next(item for item in manifest.renditions if item.kind == "audio")
+    subtitles = next(item for item in manifest.renditions if item.kind == "subtitles")
+    assert (audio.default, audio.autoselect, audio.forced) == (True, True, None)
+    assert (subtitles.default, subtitles.autoselect, subtitles.forced) == (False, True, True)
+
+    serialized = manifest.model_dump(mode="json")
+    assert serialized["renditions"][1]["forced"] is True
 
 
 def test_parses_vod_media_playlist_segments_and_duration():

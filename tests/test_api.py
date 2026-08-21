@@ -9,6 +9,7 @@ def test_dashboard_and_operational_endpoints():
     dashboard = client.get("/")
     assert dashboard.status_code == 200
     assert "Know your stream" in dashboard.text
+    assert "codec_labels" in dashboard.text
 
     health = client.get("/healthz")
     assert health.status_code == 200

@@ -33,7 +33,7 @@ class StreamAnalyzer:
         segment_samples: int = 3,
         concurrency: int = 4,
         allow_private: bool = False,
-        user_agent: str = "StreamProbe/0.2 (+https://github.com/Gio12OFF/Test123)",
+        user_agent: str = "StreamProbe/0.3 (+https://github.com/Gio12OFF/Test123)",
         client: httpx.AsyncClient | None = None,
     ) -> None:
         self.timeout = timeout
