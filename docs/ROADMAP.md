@@ -17,7 +17,7 @@ This is a living list, not a promise of release dates. Each item is intentionall
 
 ## 0.3 — DASH and transport
 
-11. Resolve DASH `SegmentTemplate` URLs.
+11. ✅ Resolve basic DASH `SegmentTemplate` URLs.
 12. Support DASH `SegmentTimeline` sampling.
 13. Read DASH initialization segments with bounded ranges.
 14. Report DASH content protection declarations without bypass logic.

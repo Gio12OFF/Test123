@@ -3,7 +3,9 @@ from __future__ import annotations
 from datetime import datetime
 from enum import Enum
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, computed_field
+
+from streamprobe.codecs import friendly_codec_label
 
 
 class StreamKind(str, Enum):
@@ -20,6 +22,12 @@ class Variant(BaseModel):
     frame_rate: float | None = None
     audio_group: str | None = None
 
+    @computed_field
+    @property
+    def codec_labels(self) -> list[str | None]:
+        """Human-friendly labels while preserving the raw codec declarations."""
+        return [friendly_codec_label(codec) for codec in self.codecs]
+
     @property
     def resolution(self) -> str:
         if self.width and self.height:
@@ -32,6 +40,9 @@ class Rendition(BaseModel):
     name: str | None = None
     language: str | None = None
     uri: str | None = None
+    default: bool | None = None
+    autoselect: bool | None = None
+    forced: bool | None = None
 
 
 class SegmentProbe(BaseModel):

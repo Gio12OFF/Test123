@@ -4,10 +4,14 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-6e56cf)](LICENSE)
 [![Built with Claude Code](https://img.shields.io/badge/built%20with-Claude%20Code-D97757?logo=anthropic&logoColor=white)](https://www.anthropic.com/claude-code)
+[![Fast PR reviews](https://img.shields.io/badge/PR%20reviews-within%2048h-16a34a)](CONTRIBUTING.md)
 
 **Open-source HLS/DASH stream analyzer and monitoring toolkit. Inspect manifests, codecs, resolutions, segment latency, URL expiration, and stream health from your terminal or browser.**
 
 StreamProbe gives video, CDN, and platform engineers one consistent way to answer a deceptively hard question: *is this adaptive stream healthy right now?* It is protocol-focused, provider-neutral, and designed to be useful as a CLI, Python library, REST service, or monitoring component.
+
+> [!TIP]
+> **Contributors are welcome.** Focused pull requests usually receive an initial review within 48 hours and are merged as soon as their scope, tests, and CI are ready.
 
 > [!IMPORTANT]
 > Only probe streams you own or are authorized to test. StreamProbe samples a small byte range from a few segments; it does not download, decrypt, bypass access controls, or redistribute video.
@@ -16,8 +20,11 @@ StreamProbe gives video, CDN, and platform engineers one consistent way to answe
 
 - HLS master and media playlists (`.m3u8`)
 - MPEG-DASH manifests (`.mpd`)
+- automatic HLS master-to-media traversal across representative bitrate variants
+- basic DASH `SegmentTemplate` and `SegmentList` media URL resolution
 - variants, resolution, bandwidth, frame rate, and codec declarations
-- audio and subtitle renditions
+- audio and subtitle renditions, including default/autoselect/forced flags
+- provider-neutral AV1 and VP9 family/profile labels (raw codec values remain available)
 - sampled segment availability and response latency
 - common signed URL expiry formats, including AWS query signatures and JWT expiry
 - live/VOD detection and declared duration
@@ -55,6 +62,15 @@ Machine-readable output is available with `--json`:
 ```bash
 streamprobe inspect URL --json --samples 5 --timeout 8
 ```
+
+Use compact JSON Lines when piping a result into an automation process:
+
+```bash
+streamprobe inspect URL --jsonl | jq -c 'select(.health_score < 80)'
+```
+
+API responses expose raw `codecs` alongside `codec_labels`; HLS renditions include
+nullable `default`, `autoselect`, and `forced` fields.
 
 Private and localhost targets are blocked by default. For local development only, pass `--allow-private`.
 
@@ -126,7 +142,7 @@ Read [the architecture guide](docs/ARCHITECTURE.md) for module boundaries and ex
 
 ## Project status
 
-StreamProbe is **alpha software**. Its parser and analyzer core work, but protocol edge cases vary enormously across packagers and CDNs. That makes real-world fixtures and focused improvements especially valuable.
+StreamProbe is **alpha software**. Its parser and analyzer core work, including representative HLS variant traversal and basic DASH segment URL resolution, but protocol edge cases vary enormously across packagers and CDNs. That makes real-world fixtures and focused improvements especially valuable.
 
 The [roadmap](docs/ROADMAP.md) contains 30 scoped contribution ideas, including AV1/VP9 normalization, deeper DASH segment probing, LL-HLS checks, Grafana dashboards, Windows packaging, and exporters. Issues marked `good first issue` should be independently testable and small enough for a first contribution.
 

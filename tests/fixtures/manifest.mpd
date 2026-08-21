@@ -3,6 +3,7 @@
   <BaseURL>https://media.example.test/movie/</BaseURL>
   <Period>
     <AdaptationSet contentType="video" codecs="avc1.64001f">
+      <SegmentTemplate media="$RepresentationID$/chunk-$Number%05d$.m4s" startNumber="7" />
       <Representation id="v1" bandwidth="2500000" width="1280" height="720" frameRate="30">
         <BaseURL>720/</BaseURL>
       </Representation>
