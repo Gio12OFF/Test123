@@ -37,6 +37,10 @@ Python 3.10 is the minimum supported version. CI also checks newer supported ver
 
 Pull requests from first-time contributors are welcome. A maintainer may suggest splitting a change to keep review focused; that is a collaboration tool, not a rejection of the idea.
 
+## Review response time
+
+Focused pull requests usually receive an initial maintainer review within 48 hours. Small documentation, fixture, and well-tested bug-fix PRs can often be merged immediately after CI passes. Larger or security-sensitive changes may need additional review, but maintainers will keep their status clear instead of leaving contributors guessing.
+
 ## Fixture guidelines
 
 - Prefer `.example`, `.test`, or `example.com` hostnames.
