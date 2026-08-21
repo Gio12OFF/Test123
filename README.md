@@ -4,10 +4,14 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-6e56cf)](LICENSE)
 [![Built with Claude Code](https://img.shields.io/badge/built%20with-Claude%20Code-D97757?logo=anthropic&logoColor=white)](https://www.anthropic.com/claude-code)
+[![Fast PR reviews](https://img.shields.io/badge/PR%20reviews-within%2048h-16a34a)](CONTRIBUTING.md)
 
 **Open-source HLS/DASH stream analyzer and monitoring toolkit. Inspect manifests, codecs, resolutions, segment latency, URL expiration, and stream health from your terminal or browser.**
 
 StreamProbe gives video, CDN, and platform engineers one consistent way to answer a deceptively hard question: *is this adaptive stream healthy right now?* It is protocol-focused, provider-neutral, and designed to be useful as a CLI, Python library, REST service, or monitoring component.
+
+> [!TIP]
+> **Contributors are welcome.** Focused pull requests usually receive an initial review within 48 hours and are merged as soon as their scope, tests, and CI are ready.
 
 > [!IMPORTANT]
 > Only probe streams you own or are authorized to test. StreamProbe samples a small byte range from a few segments; it does not download, decrypt, bypass access controls, or redistribute video.
