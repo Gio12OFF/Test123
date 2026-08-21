@@ -1,0 +1,72 @@
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "streamprobe"
+version = "0.1.0"
+description = "Open-source HLS/DASH stream analyzer and monitoring toolkit"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+authors = [{ name = "Gio12OFF" }]
+keywords = ["hls", "dash", "m3u8", "video", "monitoring", "cdn"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Framework :: FastAPI",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Internet :: WWW/HTTP",
+  "Topic :: Multimedia :: Video",
+]
+dependencies = [
+  "httpx>=0.27,<1",
+  "pydantic>=2.7,<3",
+  "typer>=0.12,<1",
+]
+
+[project.optional-dependencies]
+api = ["fastapi>=0.111,<1", "uvicorn[standard]>=0.30,<1"]
+dev = [
+  "pytest>=8.2,<9",
+  "pytest-asyncio>=0.23,<1",
+  "pytest-cov>=5,<7",
+  "respx>=0.21,<1",
+  "ruff>=0.5,<1",
+]
+
+[project.scripts]
+streamprobe = "streamprobe.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/Gio12OFF/Test123"
+Documentation = "https://github.com/Gio12OFF/Test123#readme"
+Issues = "https://github.com/Gio12OFF/Test123/issues"
+Source = "https://github.com/Gio12OFF/Test123"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/streamprobe"]
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-markers"
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["streamprobe"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "ASYNC"]
