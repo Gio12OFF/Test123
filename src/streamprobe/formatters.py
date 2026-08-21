@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from streamprobe.codecs import display_codec
 from streamprobe.models import StreamReport
 
 
@@ -17,7 +18,7 @@ def human_report(report: StreamReport) -> str:
             if variant.bandwidth
             else "unknown bitrate"
         )
-        codecs = ", ".join(variant.codecs) or "unknown codec"
+        codecs = ", ".join(display_codec(codec) for codec in variant.codecs) or "unknown codec"
         lines.append(f"  {variant.resolution:<12} {bitrate:<13} {codecs}")
     if report.segments:
         average = sum(item.latency_ms or 0 for item in report.segments) / len(report.segments)

@@ -40,6 +40,9 @@ def inspect(
     json_output: Annotated[
         bool, typer.Option("--json", help="Print machine-readable JSON.")
     ] = False,
+    jsonl_output: Annotated[
+        bool, typer.Option("--jsonl", help="Print one compact JSON object per line.")
+    ] = False,
     samples: Annotated[
         int, typer.Option("--samples", min=0, max=20, help="Segments to probe.")
     ] = 3,
@@ -51,6 +54,8 @@ def inspect(
     ] = False,
 ) -> None:
     """Inspect one stream and print its health report."""
+    if json_output and jsonl_output:
+        raise typer.BadParameter("--json and --jsonl cannot be used together")
     try:
         report = asyncio.run(
             StreamAnalyzer(
@@ -60,11 +65,13 @@ def inspect(
     except StreamProbeError as exc:
         typer.echo(f"Error: {exc}", err=True)
         raise typer.Exit(code=2) from exc
-    typer.echo(
-        json.dumps(report.model_dump(mode="json"), indent=2)
-        if json_output
-        else human_report(report)
-    )
+    payload = report.model_dump(mode="json")
+    if json_output:
+        typer.echo(json.dumps(payload, indent=2))
+    elif jsonl_output:
+        typer.echo(json.dumps(payload, separators=(",", ":")))
+    else:
+        typer.echo(human_report(report))
 
 
 @app.command()

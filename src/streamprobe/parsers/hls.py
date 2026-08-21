@@ -34,6 +34,9 @@ def parse_hls(text: str, url: str) -> ManifestInfo:
                     name=attrs.get("NAME"),
                     language=attrs.get("LANGUAGE"),
                     uri=absolute_url(url, attrs["URI"]) if attrs.get("URI") else None,
+                    default=_parse_yes_no(attrs.get("DEFAULT")),
+                    autoselect=_parse_yes_no(attrs.get("AUTOSELECT")),
+                    forced=_parse_yes_no(attrs.get("FORCED")),
                 )
             )
             continue
@@ -82,3 +85,14 @@ def parse_hls(text: str, url: str) -> ManifestInfo:
         renditions=renditions,
         segment_urls=segments,
     )
+
+
+def _parse_yes_no(value: str | None) -> bool | None:
+    if value is None:
+        return None
+    normalized = value.strip().lower()
+    if normalized == "yes":
+        return True
+    if normalized == "no":
+        return False
+    return None
