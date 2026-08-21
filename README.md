@@ -16,6 +16,8 @@ StreamProbe gives video, CDN, and platform engineers one consistent way to answe
 
 - HLS master and media playlists (`.m3u8`)
 - MPEG-DASH manifests (`.mpd`)
+- automatic HLS master-to-media traversal across representative bitrate variants
+- basic DASH `SegmentTemplate` and `SegmentList` media URL resolution
 - variants, resolution, bandwidth, frame rate, and codec declarations
 - audio and subtitle renditions
 - sampled segment availability and response latency
@@ -126,7 +128,7 @@ Read [the architecture guide](docs/ARCHITECTURE.md) for module boundaries and ex
 
 ## Project status
 
-StreamProbe is **alpha software**. Its parser and analyzer core work, but protocol edge cases vary enormously across packagers and CDNs. That makes real-world fixtures and focused improvements especially valuable.
+StreamProbe is **alpha software**. Its parser and analyzer core work, including representative HLS variant traversal and basic DASH segment URL resolution, but protocol edge cases vary enormously across packagers and CDNs. That makes real-world fixtures and focused improvements especially valuable.
 
 The [roadmap](docs/ROADMAP.md) contains 30 scoped contribution ideas, including AV1/VP9 normalization, deeper DASH segment probing, LL-HLS checks, Grafana dashboards, Windows packaging, and exporters. Issues marked `good first issue` should be independently testable and small enough for a first contribution.
 
