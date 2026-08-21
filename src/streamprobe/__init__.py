@@ -4,4 +4,4 @@ from streamprobe.analyzer import StreamAnalyzer, analyze
 from streamprobe.models import StreamReport
 
 __all__ = ["StreamAnalyzer", "StreamReport", "analyze"]
-__version__ = "0.1.0"
+__version__ = "0.2.0"

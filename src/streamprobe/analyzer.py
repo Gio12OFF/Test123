@@ -9,7 +9,7 @@ import httpx
 
 from streamprobe.exceptions import ManifestError
 from streamprobe.expiry import detect_url_expiry
-from streamprobe.models import SegmentProbe, StreamKind, StreamReport
+from streamprobe.models import SegmentProbe, StreamKind, StreamReport, Variant
 from streamprobe.parsers import parse_dash, parse_hls
 from streamprobe.scoring import health_score
 from streamprobe.security import validate_public_http_url
@@ -33,7 +33,7 @@ class StreamAnalyzer:
         segment_samples: int = 3,
         concurrency: int = 4,
         allow_private: bool = False,
-        user_agent: str = "StreamProbe/0.1 (+https://github.com/Gio12OFF/Test123)",
+        user_agent: str = "StreamProbe/0.2 (+https://github.com/Gio12OFF/Test123)",
         client: httpx.AsyncClient | None = None,
     ) -> None:
         self.timeout = timeout
@@ -69,10 +69,23 @@ class StreamAnalyzer:
             manifest = self._parse(body.decode("utf-8", errors="replace"), final_url, content_type)
             expiry = detect_url_expiry(final_url)
             segment_urls = manifest.segment_urls[: self.segment_samples]
+            discovery_warnings: list[str] = []
+            if (
+                manifest.kind is StreamKind.HLS
+                and not segment_urls
+                and manifest.variants
+                and self.segment_samples
+            ):
+                segment_urls, discovery_warnings = await self._discover_hls_segments(
+                    client, manifest.variants, self.segment_samples
+                )
             segments = await self._probe_segments(client, segment_urls)
-            warnings = self._warnings(
-                manifest.kind, manifest.variants, segments, expiry.seconds_remaining
-            )
+            warnings = [
+                *discovery_warnings,
+                *self._warnings(
+                    manifest.kind, manifest.variants, segments, expiry.seconds_remaining
+                ),
+            ]
             return StreamReport(
                 manifest=manifest,
                 manifest_latency_ms=round(manifest_latency, 2),
@@ -124,6 +137,68 @@ class StreamAnalyzer:
                     response.headers.get("content-type", ""),
                 )
         raise ManifestError("Redirect handling failed")
+
+    async def _discover_hls_segments(
+        self,
+        client: httpx.AsyncClient,
+        variants: list[Variant],
+        limit: int,
+    ) -> tuple[list[str], list[str]]:
+        selected = self._representative_variants(variants, min(limit, len(variants)))
+        semaphore = asyncio.Semaphore(self.concurrency)
+
+        async def media_segments(variant: Variant) -> list[str]:
+            current_url = variant.uri
+            try:
+                async with semaphore:
+                    for _depth in range(3):
+                        body, final_url, status_code, _ = await self._fetch_limited(
+                            client, current_url, limit=MAX_MANIFEST_BYTES
+                        )
+                        if not 200 <= status_code < 300:
+                            return []
+                        playlist = parse_hls(body.decode("utf-8", errors="replace"), final_url)
+                        if playlist.segment_urls:
+                            return playlist.segment_urls
+                        if not playlist.variants:
+                            return []
+                        current_url = max(
+                            playlist.variants, key=lambda item: item.bandwidth or 0
+                        ).uri
+            except Exception:
+                return []
+            return []
+
+        playlists = list(await asyncio.gather(*(media_segments(item) for item in selected)))
+        segments: list[str] = []
+        index = 0
+        while len(segments) < limit and any(index < len(items) for items in playlists):
+            for items in playlists:
+                if index < len(items) and items[index] not in segments:
+                    segments.append(items[index])
+                    if len(segments) == limit:
+                        break
+            index += 1
+
+        failures = sum(not items for items in playlists)
+        warnings = (
+            [f"Could not inspect {failures} of {len(playlists)} HLS variant playlists"]
+            if failures
+            else []
+        )
+        return segments, warnings
+
+    @staticmethod
+    def _representative_variants(variants: list[Variant], limit: int) -> list[Variant]:
+        ordered = sorted(variants, key=lambda item: item.bandwidth or 0)
+        if limit <= 0:
+            return []
+        if limit == 1:
+            return ordered[-1:]
+        if len(ordered) <= limit:
+            return ordered
+        indexes = [round(index * (len(ordered) - 1) / (limit - 1)) for index in range(limit)]
+        return [ordered[index] for index in indexes]
 
     @staticmethod
     def _parse(text: str, url: str, content_type: str):
